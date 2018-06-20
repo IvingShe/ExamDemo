@@ -4,8 +4,7 @@ package com.migu.schedule;
 import com.migu.schedule.constants.ReturnCodeKeys;
 import com.migu.schedule.info.TaskInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /*
 *类名和方法不能修改
@@ -22,6 +21,19 @@ public class Schedule {
         }
        //运行任务对列；
         public List<Task> mRunningTask=new ArrayList<Task>();
+
+        public boolean hasTask(int taskId){
+            boolean result=false;
+            if(mRunningTask.size()>0){
+                for(Task task:mRunningTask){
+                    if(task.mTaskId==taskId){
+                        result=true;
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
     }
 
     public static class Task{
@@ -169,13 +181,65 @@ public class Schedule {
 
 
 
-        return ReturnCodeKeys.E000;
+
+
+        return ReturnCodeKeys.E014;
     }
 
 
     public int queryTaskStatus(List<TaskInfo> tasks) {
         // TODO 方法未实现
-        return ReturnCodeKeys.E000;
+        if(null==tasks){
+            return ReturnCodeKeys.E016;
+        }
+        int size=tasks.size();
+        List<TaskInfo> des = new  ArrayList(Arrays.asList( new  Object[size]));
+        Collections.copy(des,tasks);
+        tasks.clear();
+        //taskInfo map
+        Map<Integer,Integer> map= new HashMap<Integer,Integer>();
+        //TaskId list
+        List<Integer> keys= new ArrayList<>();
+        for(TaskInfo taskInfo:des){
+            //服务节点的运行任务队列中查找；
+            boolean hasTaskInNode=false;//任务队列查找到该任务的标志位
+            if(mNodeList.size()>0){
+                for(Node node :mNodeList){
+                   hasTaskInNode = node.hasTask(taskInfo.getTaskId());
+                   if(hasTaskInNode){
+                       taskInfo.setNodeId(node.mId);
+                       break;
+                   }
+                }
+            }
+            //在挂起任务队列中查找。
+            if(!hasTaskInNode&&mTaskList.size()>0){
+                for(Task task:mTaskList){
+                    if(task.mTaskId==taskInfo.getTaskId()){
+                        taskInfo.setNodeId(-1);
+                        break;
+                    }
+                }
+            }
+            Integer key= new Integer(taskInfo.getTaskId());
+            Integer value= new Integer(taskInfo.getNodeId());
+            keys.add(key);
+            map.put(key,value);
+        }
+
+       Collections.sort(keys);
+        List<TaskInfo> result = new ArrayList<TaskInfo>();
+        for(Integer key:keys){
+            int value=  map.get(key);
+            TaskInfo taskInfo = new TaskInfo();
+            taskInfo.setTaskId(key);
+            taskInfo.setNodeId(value);
+            result.add(taskInfo);
+        }
+        tasks=result;
+        return  ReturnCodeKeys.E015;
+
+
     }
 
 }
