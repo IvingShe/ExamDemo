@@ -20,6 +20,8 @@ public class Schedule {
         public Node(int mId) {
             this.mId = mId;
         }
+       //运行任务对列；
+        public List<Task> mRunningTask=new ArrayList<Task>();
     }
 
     public static class Task{
@@ -33,6 +35,7 @@ public class Schedule {
     }
     //节点列表
     private List<Node> mNodeList= new ArrayList<Node>();
+    //挂起的任务队列；
     private List<Task> mTaskList = new ArrayList<Task>();
 
 
@@ -72,7 +75,13 @@ public class Schedule {
             for(Node node:mNodeList){
                 if(node.mId==nodeId){
                     hasNode=true;
+                    List<Task> runningTasks= node.mRunningTask;
+                    if(runningTasks.size()>0){
+                        mTaskList.addAll(runningTasks);
+                        runningTasks.clear();
+                    }
                     mNodeList.remove(node);
+
                     break;
                 }
             }
@@ -124,6 +133,25 @@ public class Schedule {
                 }
             }
         }
+        //节点上的运行任务查寻
+        if(!hasTheTask){
+            if(mNodeList.size()>0){
+                for(Node node:mNodeList){
+                    List<Task> runningTask=node.mRunningTask;//节点上运行任务队列；
+                    if(runningTask.size()>0){
+                        for(Task nodeTask:runningTask){
+                            if(nodeTask.mTaskId==taskId){
+                                hasTheTask=true;
+                                runningTask.remove(nodeTask);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         if(!hasTheTask){
             return ReturnCodeKeys.E012;
         }else{
@@ -134,6 +162,13 @@ public class Schedule {
 
     public int scheduleTask(int threshold) {
         // TODO 方法未实现
+        if(threshold<=0){
+            return ReturnCodeKeys.E002;
+        }
+
+
+
+
         return ReturnCodeKeys.E000;
     }
 
