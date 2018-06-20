@@ -177,12 +177,27 @@ public class Schedule {
         if(threshold<=0){
             return ReturnCodeKeys.E002;
         }
+       int nodeSize= mNodeList.size();
+       int taskSize= mTaskList.size();
+       int totalConsuption= 0;
+       List<Integer> consumptionList= new ArrayList<Integer>();
 
-
-
-
-
-
+       for(int i=0;i<taskSize;i++){
+           Task task= mTaskList.get(i);
+           totalConsuption+=task.mConsumption;
+           consumptionList.add(new Integer(task.mConsumption));
+       }
+//        Collections.sort(consumptionList);
+//       int count=taskSize/nodeSize;
+//      int[][] averages= new int[nodeSize][];
+//       for(int i=0;i<taskSize;i++){
+//               averages[i%count][i/count]=consumptionList.get(i);
+//       }
+//       /*
+//      iint[] sum=new int[nodeSize];
+//       for(int i=0;i<averages.length;i++){
+//
+//       }*/
         return ReturnCodeKeys.E014;
     }
 
